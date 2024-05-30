@@ -1,6 +1,6 @@
-import express from "express";
+const express =require( "express");
 // import user from "./db";
-import mainRouter from "./routes/index";
+const mainRouter =require("./routes/index");
 
 const app=express();
 app.use(cors());
