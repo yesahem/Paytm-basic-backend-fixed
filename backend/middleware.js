@@ -1,28 +1,35 @@
-const {JWT_SEC}=require("./config");
-const jwt=require("jsonwebtoken");
+const JWT_SEC = require("./config");
+const jwt = require("jsonwebtoken");
 
-const authMiddleware=(req,res,next)=>{
-    const authHeader=req.header.authorization;
-    if(!authHeader || !authHeader.startWith('Bearer')){
-        return res.status(403).json({});
+const authMiddleware = (req, res, next) => {
+  const authHeader = req.headers.authorization;
+  console.log(typeof authHeader);
+  if (!authHeader || !authHeader.startsWith("Bearer ")) {
+    return res.status(403).json({
+      msg: "Error in middleware",
+    });
+  }
+  const token = authHeader.split(" ")[1];
+
+  try {
+    console.log(JWT_SEC);
+    const decoded = jwt.verify(token, JWT_SEC);
+    if (decoded.userId) {
+      req.userId = decoded.userId;
+      next();
+    } else {
+      return res.status(403).json({
+        msg: "Something went wrong ",
+      });
     }
-    const token=authHeader.split(' ')[1];
+  } catch (err) {
+    return res.status(403).json({
+      msg: "Error thrown",
+    });
+  }
+};
 
-    try{
-        const decoded=jwt.verify(token,JWT_SEC);
-        if(decoded.userId){
-            res.userId=decoded.userId;
-            next();
+module.exports = {
+  authMiddleware,
+};
 
-        }
-        else{
-            return res.status(403).json({});
-        }
-    }catch(err){
-        return res.status(403).json({});
-    }
-}
-
-module.exports={
-    authMiddleware
-}
